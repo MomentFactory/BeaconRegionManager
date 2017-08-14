@@ -172,4 +172,12 @@ typedef NS_ENUM(NSUInteger, BRMFrameType) {
  */
 @property (readonly) NSMutableArray *monitoringEddystoneBeacons;
 
+// Moment Factory methods
+/**
+ * Sets frequency of range updates
+ */
+- (void)setUpdateFrequency:(CGFloat) frequency;
+
+
 @end
+

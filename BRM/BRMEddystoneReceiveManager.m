@@ -164,7 +164,7 @@
             url = [url stringByAppendingString:[self getEncodedString:*(data + i + 3)]];
         }
         self.shortUrl = url;
-
+        
         // Free advertise data for char*
         free(data);
     }
@@ -226,6 +226,7 @@
 
 @property (nonatomic, strong) CBCentralManager *centralManager;
 @property (nonatomic, weak) NSTimer *checkTimer;
+@property (nonatomic, assign) CGFloat updateFrequency;
 
 @end
 
@@ -248,6 +249,7 @@
     if (self) {
         [self startMonitoringEddystoneBeacon];
         _monitoringEddystoneBeacons = [@[] mutableCopy];
+        _updateFrequency = 1.0f;
     }
     
     return self;
@@ -334,7 +336,7 @@
     NSAssert(eddystoneBeacon, @"eddystoneBeacon must not be nil.");
     
     if (!_checkTimer) {
-        _checkTimer = [NSTimer scheduledTimerWithTimeInterval:0.1f target:self selector:@selector(checkEddystoneBeaconsStatus) userInfo:nil repeats:YES];
+        [self restartTimer];
     }
     
     BRMEddystoneBeacon *sameBeacon = [self getFoundSameBeacon:eddystoneBeacon];
@@ -405,9 +407,9 @@
             eddystoneBeacon.averageRssi = rssi;
         }
         [_monitoringEddystoneBeacons addObject:eddystoneBeacon];
-
+        
         eddystoneBeacon.lastUpdateDate = [NSDate date];
-
+        
         [self enterBeacon:eddystoneBeacon];
     }
     
@@ -485,6 +487,22 @@
     }
 }
 
+// MF additions
+
+- (void)restartTimer {
+    [_checkTimer invalidate];
+    _checkTimer = [NSTimer scheduledTimerWithTimeInterval: _updateFrequency target:self selector:@selector(checkEddystoneBeaconsStatus) userInfo:nil repeats:YES];
+}
+
+- (void)setUpdateFrequency:(CGFloat) frequency {
+    _updateFrequency = frequency;
+    if (_checkTimer) {
+        [self restartTimer];
+    }
+}
+
+// (end) MF additions
+
 #pragma mark - CentralManager Delegate
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI
@@ -495,7 +513,7 @@
     NSData *advertiseData = advertiseDataDictionay[[self getEddystoneServiceID]];
     
     BRMFrameType frameType = [self getFrameTypeWithAdvertiseData:advertiseData];
-
+    
     BRMEddystoneBeacon *beacon;
     
     switch (frameType) {
@@ -518,7 +536,7 @@
             // Unknown Eddystone Beacon or Vendor Customize Eddystone Beacon
             break;
     }
-
+    
     if (beacon) {
         beacon.frameType = frameType;
         beacon.identifier = peripheral.identifier.UUIDString;
@@ -542,3 +560,4 @@
 }
 
 @end
+
