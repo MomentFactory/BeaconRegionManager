@@ -334,7 +334,7 @@
     NSAssert(eddystoneBeacon, @"eddystoneBeacon must not be nil.");
     
     if (!_checkTimer) {
-        _checkTimer = [NSTimer scheduledTimerWithTimeInterval:1.0f target:self selector:@selector(checkEddystoneBeaconsStatus) userInfo:nil repeats:YES];
+        _checkTimer = [NSTimer scheduledTimerWithTimeInterval:0.1f target:self selector:@selector(checkEddystoneBeaconsStatus) userInfo:nil repeats:YES];
     }
     
     BRMEddystoneBeacon *sameBeacon = [self getFoundSameBeacon:eddystoneBeacon];
