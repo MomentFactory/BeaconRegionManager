@@ -491,7 +491,7 @@
 
 - (void)restartTimer {
     [_checkTimer invalidate];
-    _checkTimer = [NSTimer scheduledTimerWithTimeInterval: _updateFrequency target:self selector:@selector(checkEddystoneBeaconsStatus) userInfo:nil repeats:YES];
+    _checkTimer = [NSTimer scheduledTimerWithTimeInterval: 1.0f / _updateFrequency target:self selector:@selector(checkEddystoneBeaconsStatus) userInfo:nil repeats:YES];
 }
 
 - (void)setUpdateFrequency:(CGFloat) frequency {
